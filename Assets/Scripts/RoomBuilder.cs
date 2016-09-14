@@ -26,16 +26,21 @@ public class RoomBuilder : MonoBehaviour {
         foreach (XmlNode node in nodes) {
             if (node.Name == "el") {
                 if (node.Attributes["model"].Value == "box") {
-                    GameObject go = Instantiate(box);
-
-                    MapAttributes(node, go);
+                    MakeBox(node);
                 }
+
+                continue;
+            }
+
+            if (node.Name == "box") {
+                MakeBox(node);
 
                 continue;
             }
 
             if (node.Name == "room") {
                 ProcessRoom(node.ChildNodes);
+
                 continue;
             }
 
@@ -86,5 +91,11 @@ public class RoomBuilder : MonoBehaviour {
         }
 
         go.transform.position = pos;
+    }
+
+    private void MakeBox(XmlNode node) {
+        GameObject go = Instantiate(box);
+
+        MapAttributes(node, go);
     }
 }

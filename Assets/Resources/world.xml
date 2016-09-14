@@ -1,3 +1,5 @@
 ﻿<room>
-  <el name="ground" model="box" scale-x="10" scale-y="0.1" scale-z="10" x="10" y="-1"/>
+  <el name="ground" model="box" scale-x="10" scale-y="0.1" scale-z="10" y="-1"/>
+
+  <box name="A thing" scale-y="10" y="1"/>
 </room>
