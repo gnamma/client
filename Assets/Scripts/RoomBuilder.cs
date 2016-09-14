@@ -17,20 +17,27 @@ public class RoomBuilder : MonoBehaviour {
         doc = new XmlDocument();
         doc.LoadXml(text.ToString());
 
-        ProcessRoom(doc.SelectNodes("room/el"));
+        ProcessRoom(doc.SelectNodes("room"));
 	}
 
     private void ProcessRoom(XmlNodeList nodes) {
         foreach (XmlNode node in nodes) {
-            if (node.Name != "el") {
-                throw new Exception("Unknown GWML element" + node.Name);
+            if (node.Name == "el") {
+                if (node.Attributes["model"].Value == "box") {
+                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+                    go.name = node.Attributes["name"].Value;
+                }
+
+                continue;
             }
 
-            if (node.Attributes["model"].Value == "box") {
-                GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
-                go.name = node.Attributes["name"].Value;
+            if (node.Name == "room") {
+                ProcessRoom(node.ChildNodes);
+                continue;
             }
+
+            throw new Exception("Unknown GWML element " + node.Name);
         }
     }
 }
