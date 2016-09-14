@@ -4,6 +4,8 @@ using System.Xml;
 using System;
 
 public class RoomBuilder : MonoBehaviour {
+    public GameObject box;
+
     private XmlDocument doc;
 
 	// Use this for initialization
@@ -24,9 +26,9 @@ public class RoomBuilder : MonoBehaviour {
         foreach (XmlNode node in nodes) {
             if (node.Name == "el") {
                 if (node.Attributes["model"].Value == "box") {
-                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    GameObject go = Instantiate(box);
 
-                    go.name = node.Attributes["name"].Value;
+                    MapAttributes(node, go);
                 }
 
                 continue;
@@ -39,5 +41,50 @@ public class RoomBuilder : MonoBehaviour {
 
             throw new Exception("Unknown GWML element " + node.Name);
         }
+    }
+
+    private void MapAttributes(XmlNode node, GameObject go) {
+        XmlAttribute name = node.Attributes["name"];
+        if (name != null) {
+            go.name = name.Value;
+        }
+
+        Vector3 scale = Vector3.one;
+        XmlAttribute scaleX = node.Attributes["scale-x"];
+        XmlAttribute scaleY = node.Attributes["scale-y"];
+        XmlAttribute scaleZ = node.Attributes["scale-z"];
+
+        if (scaleX != null) {
+            scale.x = float.Parse(scaleX.Value);
+        }
+
+        if (scaleY != null) {
+            scale.y = float.Parse(scaleY.Value);
+        }
+
+        if (scaleZ != null) {
+            scale.z = float.Parse(scaleZ.Value);
+        }
+
+        go.transform.localScale = scale;
+
+        Vector3 pos = Vector3.zero;
+        XmlAttribute posX = node.Attributes["x"];
+        XmlAttribute posY = node.Attributes["y"];
+        XmlAttribute posZ = node.Attributes["z"];
+
+        if (posX != null) {
+            pos.x = float.Parse(posX.Value);
+        }
+
+        if (posY != null) {
+            scale.y = float.Parse(posY.Value);
+        }
+
+        if (posZ != null) {
+            scale.z = float.Parse(posZ.Value);
+        }
+
+        go.transform.position = pos;
     }
 }
