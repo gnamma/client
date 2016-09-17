@@ -45,6 +45,7 @@ public class RoomBuilder : MonoBehaviour {
 
                 continue;
             }
+
             if (node.Name == "plane") {
                 MakePlane(node);
 
