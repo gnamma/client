@@ -10,4 +10,9 @@ public class Protocol {
     public class ConnectRequest: Communication {
         public string username;
     }
+
+    public class ConnectVerdict: Communication {
+        public bool can_proceed;
+        public string message;
+    }
 }
