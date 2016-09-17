@@ -5,10 +5,10 @@ using System;
 
 public class RoomBuilder : MonoBehaviour {
     public GameObject box;
+    public GameObject plane;
 
     private XmlDocument doc;
 
-	// Use this for initialization
 	void Start () {
         TextAsset text = Resources.Load("world") as TextAsset;
         if (!text) {
@@ -25,8 +25,16 @@ public class RoomBuilder : MonoBehaviour {
     private void ProcessRoom(XmlNodeList nodes) {
         foreach (XmlNode node in nodes) {
             if (node.Name == "el") {
-                if (node.Attributes["model"].Value == "box") {
+                XmlAttribute model = node.Attributes["model"];
+
+                if (model == null) {
+                    throw new Exception("Node 'el' needs a 'model' attribute");
+                }
+
+                if (model.Value == "box") {
                     MakeBox(node);
+                } else if (model.Value == "plane") {
+                    MakePlane(node);
                 }
 
                 continue;
@@ -34,6 +42,11 @@ public class RoomBuilder : MonoBehaviour {
 
             if (node.Name == "box") {
                 MakeBox(node);
+
+                continue;
+            }
+            if (node.Name == "plane") {
+                MakePlane(node);
 
                 continue;
             }
@@ -83,11 +96,11 @@ public class RoomBuilder : MonoBehaviour {
         }
 
         if (posY != null) {
-            scale.y = float.Parse(posY.Value);
+            pos.y = float.Parse(posY.Value);
         }
 
         if (posZ != null) {
-            scale.z = float.Parse(posZ.Value);
+            pos.z = float.Parse(posZ.Value);
         }
 
         go.transform.position = pos;
@@ -95,6 +108,12 @@ public class RoomBuilder : MonoBehaviour {
 
     private void MakeBox(XmlNode node) {
         GameObject go = Instantiate(box);
+
+        MapAttributes(node, go);
+    }
+
+    private void MakePlane(XmlNode node) {
+        GameObject go = Instantiate(plane);
 
         MapAttributes(node, go);
     }
