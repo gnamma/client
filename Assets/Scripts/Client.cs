@@ -17,9 +17,7 @@ public class Client : MonoBehaviour {
         net.Connect();
 
         // Begin handshake with server
-        ConnectRequest cr = new ConnectRequest();
-        cr.username = alias;
-        cr.command = "connect_request";
+        ConnectRequest cr = new ConnectRequest(alias);
         net.Send(cr);
         
         ConnectVerdict cv = new ConnectVerdict();

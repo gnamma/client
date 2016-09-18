@@ -9,6 +9,11 @@ namespace Protocol {
 
     public class ConnectRequest: Communication {
         public string username;
+
+        public ConnectRequest(string u) {
+            username = u;
+            command = "connect_request";
+        }
     }
 
     public class ConnectVerdict: Communication {
