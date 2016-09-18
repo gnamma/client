@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Protocol {
+namespace Protocol {
     public class Communication {
         public string command;
         public uint sent_at;

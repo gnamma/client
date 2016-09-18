@@ -22,7 +22,7 @@ public class Net : MonoBehaviour {
         client.Connect(host, port);
     }
 
-    private void Send(object cmd) {
+    public void Send(object cmd) {
         string toSend = JsonUtility.ToJson(cmd);
         Debug.Log(toSend);
 
@@ -31,7 +31,7 @@ public class Net : MonoBehaviour {
         client.GetStream().Write(data, 0, data.Length);
     }
 
-    private void Receive<T>(ref T blob) {
+    public void Receive<T>(ref T blob) {
         new Thread(() => {
             Protocol.ConnectVerdict conver = new Protocol.ConnectVerdict();
             StreamReader reader = new StreamReader(client.GetStream());

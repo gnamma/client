@@ -9,11 +9,6 @@ public class Builder : MonoBehaviour {
 
     private XmlDocument doc;
 
-	void Start () {
-        LoadFromResource("world");
-        Build();
-	}
-
     public void LoadFromResource(string name) {
         TextAsset text = Resources.Load(name) as TextAsset;
         if (text == null) {
