@@ -10,19 +10,29 @@ public class RoomBuilder : MonoBehaviour {
     private XmlDocument doc;
 
 	void Start () {
-        TextAsset text = Resources.Load("world") as TextAsset;
-        if (!text) {
-            Debug.Log("Couldn't find world[.xml]");
-            return;
-        }
-
-        doc = new XmlDocument();
-        doc.LoadXml(text.ToString());
-
-        ProcessRoom(doc.SelectNodes("room"));
+        LoadFromResource("world");
+        Build();
 	}
 
-    private void ProcessRoom(XmlNodeList nodes) {
+    public void LoadFromResource(string name) {
+        TextAsset text = Resources.Load(name) as TextAsset;
+        if (text == null) {
+            throw new Exception("Couldn't load the resource: " + name);
+        }
+
+        LoadFromString(text.ToString());
+    }
+
+    public void LoadFromString(string source) {
+        doc = new XmlDocument();
+        doc.LoadXml(source);
+    }
+
+    public void Build() {
+        Build(doc.SelectNodes("room"));
+    }
+
+    public void Build(XmlNodeList nodes) {
         foreach (XmlNode node in nodes) {
             if (node.Name == "el") {
                 XmlAttribute model = node.Attributes["model"];
@@ -53,7 +63,7 @@ public class RoomBuilder : MonoBehaviour {
             }
 
             if (node.Name == "room") {
-                ProcessRoom(node.ChildNodes);
+                Build(node.ChildNodes);
 
                 continue;
             }
