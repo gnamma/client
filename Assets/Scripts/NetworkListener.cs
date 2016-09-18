@@ -13,32 +13,22 @@ public class NetworkListener : MonoBehaviour {
 
     private TcpClient client;
 
-    private byte[] datalen = new byte[4];
-
-	void Start () {
-        client = new TcpClient();
-        client.Connect(host, port);
-
-        NetworkStream stream = client.GetStream();
-
-        Protocol.ConnectRequest cr = new Protocol.ConnectRequest();
-        cr.command = "connect_request";
-        cr.username = "paked";
-        cr.sent_at = 22;
-
-        Protocol.ConnectVerdict cv = new Protocol.ConnectVerdict();
-
-        Send(cr, stream);
-        Receive(ref cv);
+    public void Connect() {
+        Connect(host, port);
     }
 
-    private void Send(object cmd, NetworkStream stream) {
+    public void Connect(string host, int port) {
+        client = new TcpClient();
+        client.Connect(host, port);
+    }
+
+    private void Send(object cmd) {
         string toSend = JsonUtility.ToJson(cmd);
         Debug.Log(toSend);
 
         byte[] data;
         data = Encoding.Default.GetBytes(toSend + "\n");
-        stream.Write(data, 0, data.Length);
+        client.GetStream().Write(data, 0, data.Length);
     }
 
     private void Receive<T>(ref T blob) {
