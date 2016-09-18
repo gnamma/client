@@ -7,7 +7,7 @@ using System.Threading;
 using System.Text;
 using System.IO;
 
-public class NetworkListener : MonoBehaviour {
+public class Net : MonoBehaviour {
     public string host;
     public int port;
 

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Xml;
 using System;
 
-public class RoomBuilder : MonoBehaviour {
+public class Builder : MonoBehaviour {
     public GameObject box;
     public GameObject plane;
 
