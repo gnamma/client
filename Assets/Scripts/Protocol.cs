@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Protocol {
     public class Communication {
@@ -7,7 +8,7 @@ namespace Protocol {
         public uint sent_at;
     }
 
-    public class ConnectRequest: Communication {
+    public class ConnectRequest : Communication {
         public string username;
 
         public ConnectRequest(string u) {
@@ -16,8 +17,17 @@ namespace Protocol {
         }
     }
 
-    public class ConnectVerdict: Communication {
+    public class ConnectVerdict : Communication {
         public bool can_proceed;
         public string message;
+    }
+
+    public class AssetRequest : Communication {
+        public string key;
+
+        public AssetRequest(string k) {
+            key = k;
+            command = "asset_request";
+        }
     }
 }

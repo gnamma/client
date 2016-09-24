@@ -17,16 +17,24 @@ public class Client : MonoBehaviour {
     void Start() {
         net.Connect();
 
-        // Begin handshake with server
         ConnectRequest cr = new ConnectRequest(alias);
         net.Send(cr);
 
-        new Thread(() => {
-            ConnectVerdict cv = new ConnectVerdict();
-            net.Read(ref cv);
+        ConnectVerdict cv = new ConnectVerdict();
+        net.Read(ref cv);
 
-            Debug.Log(cv.message);
-        }).Start();
-        
+        if (!cv.can_proceed) {
+            Debug.Log("Not allowed to proceed: " + cv.message);
+            return;
+        }
+
+        AssetRequest ar = new AssetRequest("room.gsml");
+        net.Send(ar);
+
+        string resp = net.ReadRaw();
+        Debug.Log(resp);
+
+        builder.LoadFromString(resp);
+        builder.Build();
     }
 }
