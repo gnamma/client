@@ -23,17 +23,19 @@ public class Net : MonoBehaviour {
     }
 
     public void Send(object cmd) {
-        string toSend = JsonUtility.ToJson(cmd);
-        Debug.Log(toSend);
+        NetworkStream stream = client.GetStream();
 
-        byte[] data;
-        data = Encoding.Default.GetBytes(toSend + "\n");
-        client.GetStream().Write(data, 0, data.Length);
+        string jsonString = JsonUtility.ToJson(cmd);
+        byte[] jsonBytes = Encoding.Default.GetBytes(jsonString);
+        byte[] lenBytes = Encoding.Default.GetBytes(jsonBytes.Length.ToString() + "\n");
+
+        stream.Write(lenBytes, 0, lenBytes.Length);
+        stream.Write(jsonBytes, 0, jsonBytes.Length);
     }
 
     public void Read<T>(ref T blob) {
         string rec = ReadRaw();
-
+        Debug.Log(rec);
         try {
             blob = JsonUtility.FromJson<T>(rec);
 
@@ -45,8 +47,17 @@ public class Net : MonoBehaviour {
     }
 
     public string ReadRaw() {
-        StreamReader reader = new StreamReader(client.GetStream());
+        NetworkStream stream = client.GetStream();
+        StreamReader reader = new StreamReader(stream);
 
-        return reader.ReadLine();
+        string lenStr = reader.ReadLine();
+        int len = Int32.Parse(lenStr);
+
+        byte[] data = new byte[len];
+        stream.Read(data, 0, len);
+
+        Debug.Log("read");
+
+        return Encoding.Default.GetString(data);
     }
 }

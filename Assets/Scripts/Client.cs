@@ -36,5 +36,7 @@ public class Client : MonoBehaviour {
 
         builder.LoadFromString(resp);
         builder.Build();
+
+        Debug.Log("Done!");
     }
 }
