@@ -31,22 +31,22 @@ public class Net : MonoBehaviour {
         client.GetStream().Write(data, 0, data.Length);
     }
 
-    public void Receive<T>(ref T blob) {
-        new Thread(() => {
-            Protocol.ConnectVerdict conver = new Protocol.ConnectVerdict();
-            StreamReader reader = new StreamReader(client.GetStream());
+    public void Read<T>(ref T blob) {
+        string rec = ReadRaw();
 
-            string rec = reader.ReadLine();
+        try {
+            blob = JsonUtility.FromJson<T>(rec);
 
-            try {
-                conver = JsonUtility.FromJson<Protocol.ConnectVerdict>(rec);
+            Debug.Log(blob);
+        } catch (Exception e) {
+            Debug.Log("Error umarshalling JSON");
+            Debug.Log(e);
+        }
+    }
 
-                Debug.Log(conver.message);
-            } catch (Exception e) {
-                Debug.Log("Error umarshalling JSON");
-                Debug.Log(e);
-            }
+    public string ReadRaw() {
+        StreamReader reader = new StreamReader(client.GetStream());
 
-        }).Start();
+        return reader.ReadLine();
     }
 }

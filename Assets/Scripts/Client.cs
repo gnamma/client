@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Protocol;
+using System.Threading;
 
 public class Client : MonoBehaviour {
     public string alias = "parzival";
@@ -19,10 +20,13 @@ public class Client : MonoBehaviour {
         // Begin handshake with server
         ConnectRequest cr = new ConnectRequest(alias);
         net.Send(cr);
-        
-        ConnectVerdict cv = new ConnectVerdict();
-        net.Receive(ref cv);
 
-        Debug.Log(cv.message);
+        new Thread(() => {
+            ConnectVerdict cv = new ConnectVerdict();
+            net.Read(ref cv);
+
+            Debug.Log(cv.message);
+        }).Start();
+        
     }
 }
