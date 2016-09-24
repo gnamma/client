@@ -5,6 +5,7 @@ using System.Threading;
 
 public class Client : MonoBehaviour {
     public string alias = "parzival";
+    public string environment = "pillars.gsml";
 
     private Net net;
     private Builder builder;
@@ -28,7 +29,7 @@ public class Client : MonoBehaviour {
             return;
         }
 
-        AssetRequest ar = new AssetRequest("room.gsml");
+        AssetRequest ar = new AssetRequest(environment);
         net.Send(ar);
 
         string resp = net.ReadRaw();
