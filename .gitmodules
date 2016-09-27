@@ -1,0 +1,3 @@
+[submodule "Assets/steamvr-mirror"]
+	path = Assets/steamvr-mirror
+	url = git@github.com:gnamma/steamvr-mirror
