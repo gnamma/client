@@ -7,32 +7,35 @@ public class Client : MonoBehaviour {
     public string alias = "parzival";
     public string environment = "pillars.gsml";
 
-    private Net net;
+    private GNSClient gnsNet;
+    private AssetsClient asNet;
     private Builder builder;
 
 	void Awake() {
-        net = GetComponent<Net>();
+        gnsNet = GetComponent<GNSClient>();
+        asNet = GetComponent<AssetsClient>();
+
         builder = GetComponent<Builder>();
 	}
 
     void Start() {
-        net.Connect();
+        gnsNet.Connect();
+        asNet.Connect();
 
         ConnectRequest cr = new ConnectRequest(alias);
-        net.Send(cr);
+        gnsNet.Send(cr);
 
         ConnectVerdict cv = new ConnectVerdict();
-        net.Read(ref cv);
+        gnsNet.Read(ref cv);
 
         if (!cv.can_proceed) {
             Debug.Log("Not allowed to proceed: " + cv.message);
             return;
         }
 
-        AssetRequest ar = new AssetRequest(environment);
-        net.Send(ar);
+        asNet.SendRawString(environment);
 
-        string resp = net.ReadRaw();
+        string resp = asNet.ReadRaw();
         Debug.Log(resp);
 
         builder.LoadFromString(resp);

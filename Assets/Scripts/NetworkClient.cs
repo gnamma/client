@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -7,7 +8,7 @@ using System.Threading;
 using System.Text;
 using System.IO;
 
-public class Net : MonoBehaviour {
+public class NetworkClient : MonoBehaviour {
     public string host;
     public int port;
 
@@ -23,19 +24,29 @@ public class Net : MonoBehaviour {
     }
 
     public void Send(object cmd) {
-        NetworkStream stream = client.GetStream();
-
         string jsonString = JsonUtility.ToJson(cmd);
         byte[] jsonBytes = Encoding.Default.GetBytes(jsonString);
-        byte[] lenBytes = Encoding.Default.GetBytes(jsonBytes.Length.ToString() + "\n");
 
-        stream.Write(lenBytes, 0, lenBytes.Length);
-        stream.Write(jsonBytes, 0, jsonBytes.Length);
+        SendRaw(jsonBytes);
     }
 
-    public void Read<T>(ref T blob) {
+    public void SendRawString(string s) {
+        SendRaw(Encoding.Default.GetBytes(s));
+    }
+
+    public void SendRaw(byte[] data) {
+        NetworkStream stream = client.GetStream();
+
+        byte[] lenBytes = Encoding.Default.GetBytes(data.Length.ToString() + "\n");
+
+        stream.Write(lenBytes, 0, lenBytes.Length);
+        stream.Write(data, 0, data.Length);
+    }
+
+    public void Read<T>(ref T blob) where T : Protocol.Communication {
         string rec = ReadRaw();
         Debug.Log(rec);
+
         try {
             blob = JsonUtility.FromJson<T>(rec);
 
