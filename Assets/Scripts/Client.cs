@@ -7,9 +7,13 @@ public class Client : MonoBehaviour {
     public string alias = "parzival";
     public string environment = "pillars.gsml";
 
+    public TrackedNode[] nodes;
+
     private GNSClient gnsNet;
     private AssetsClient asNet;
     private Builder builder;
+
+    private uint pid;
 
 	void Awake() {
         gnsNet = GetComponent<GNSClient>();
@@ -33,8 +37,11 @@ public class Client : MonoBehaviour {
             return;
         }
 
-        asNet.SendRawString(environment);
+        pid = cv.player_id;
 
+        RegisterNodes();
+
+        asNet.SendRawString(environment);
         string resp = asNet.ReadRaw();
         Debug.Log(resp);
 
@@ -42,5 +49,23 @@ public class Client : MonoBehaviour {
         builder.Build();
 
         Debug.Log("Done!");
+    }
+
+    public void RegisterNodes() {
+        foreach (var node in nodes) {
+            Debug.Log(node);
+            var rn = new RegisterNode(node.Node, pid);
+            var ren = new RegisteredNode();
+
+            gnsNet.Send(rn);
+
+            gnsNet.Read(ref ren);
+            if (ren.command == null) {
+                Debug.LogError("Could not register a node: " + node.Node.label);
+            }
+
+            node.ID = ren.nid;
+            node.PID = pid;
+        }
     }
 }

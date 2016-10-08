@@ -12,5 +12,11 @@ namespace GUtils {
             this.y = y;
             this.z = z;
         }
+        
+        public Point(Vector3 v) {
+            x = v.x;
+            y = v.y;
+            z = v.z;
+        }
     }
 }

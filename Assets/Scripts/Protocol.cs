@@ -21,6 +21,7 @@ namespace Protocol {
     public class ConnectVerdict : Communication {
         public bool can_proceed;
         public string message;
+        public uint player_id;
     }
 
     public class RegisterNode : Communication {
