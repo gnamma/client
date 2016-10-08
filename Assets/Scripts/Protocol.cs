@@ -40,6 +40,22 @@ namespace Protocol {
         public uint nid;
     }
 
+    public class UpdateNode : Communication {
+        public uint pid;
+        public uint nid;
+        public Point position;
+        public Point rotation;
+
+        public UpdateNode(Node n) {
+            pid = n.pid;
+            nid = n.id;
+            position = n.position;
+            rotation = n.rotation;
+
+            command = "update_node";
+        }
+    }
+
     public class Node {
         public uint id;
         public int type;

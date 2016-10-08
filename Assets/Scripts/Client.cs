@@ -33,7 +33,7 @@ public class Client : MonoBehaviour {
         gnsNet.Read(ref cv);
 
         if (!cv.can_proceed) {
-            Debug.Log("Not allowed to proceed: " + cv.message);
+            Debug.LogError("Not allowed to proceed: " + cv.message);
             return;
         }
 
@@ -48,12 +48,11 @@ public class Client : MonoBehaviour {
         builder.LoadFromString(resp);
         builder.Build();
 
-        Debug.Log("Done!");
+        InvokeRepeating("UpdateNodes", 0, 0.2f);
     }
 
     public void RegisterNodes() {
         foreach (var node in nodes) {
-            Debug.Log(node);
             var rn = new RegisterNode(node.Node, pid);
             var ren = new RegisteredNode();
 
@@ -66,6 +65,14 @@ public class Client : MonoBehaviour {
 
             node.ID = ren.nid;
             node.PID = pid;
+        }
+    }
+
+    public void UpdateNodes() {
+        foreach (var node in nodes) {
+            var un = new UpdateNode(node.Node);
+
+            gnsNet.Send(un);
         }
     }
 }

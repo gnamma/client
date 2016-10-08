@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 namespace GUtils {
+    [Serializable]
     public class Point {
         public float x;
         public float y;

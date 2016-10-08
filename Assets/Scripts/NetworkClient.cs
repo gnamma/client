@@ -27,6 +27,8 @@ public class NetworkClient : MonoBehaviour {
         string jsonString = JsonUtility.ToJson(cmd);
         byte[] jsonBytes = Encoding.Default.GetBytes(jsonString);
 
+        Debug.Log(jsonString);
+
         SendRaw(jsonBytes);
     }
 
