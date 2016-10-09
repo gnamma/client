@@ -25,12 +25,23 @@ public class Client : MonoBehaviour {
     void Start() {
         gnsNet.Connect();
         asNet.Connect();
+        
+        new Thread(StartSession).Start();
 
+        asNet.SendRawString(environment);
+        string resp = asNet.ReadRaw();
+        Debug.Log(resp);
+
+        builder.LoadFromString(resp);
+        builder.Build();
+    }
+
+    public void StartSession() {
         ConnectRequest cr = new ConnectRequest(alias);
         gnsNet.Send(cr);
 
         ConnectVerdict cv = new ConnectVerdict();
-        gnsNet.Read(ref cv);
+        cv = gnsNet.Read(cv);
 
         if (!cv.can_proceed) {
             Debug.LogError("Not allowed to proceed: " + cv.message);
@@ -40,13 +51,6 @@ public class Client : MonoBehaviour {
         pid = cv.player_id;
 
         RegisterNodes();
-
-        asNet.SendRawString(environment);
-        string resp = asNet.ReadRaw();
-        Debug.Log(resp);
-
-        builder.LoadFromString(resp);
-        builder.Build();
 
         InvokeRepeating("UpdateNodes", 0, 0.2f);
     }

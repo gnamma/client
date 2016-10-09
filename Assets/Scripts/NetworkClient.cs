@@ -73,4 +73,8 @@ public class NetworkClient : MonoBehaviour {
 
         return Encoding.Default.GetString(data);
     }
+
+    void OnApplicationQuit() {
+        client.Close();
+    }
 }
