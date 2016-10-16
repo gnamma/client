@@ -22,6 +22,10 @@ namespace Protocol {
         public bool can_proceed;
         public string message;
         public uint player_id;
+
+        public ConnectVerdict() {
+            command = "connect_verdict";
+        }
     }
 
     public class RegisterNode : Communication {
@@ -38,6 +42,10 @@ namespace Protocol {
 
     public class RegisteredNode : Communication {
         public uint nid;
+
+        public RegisteredNode() {
+            command = "registered_node";
+        }
     }
 
     public class UpdateNode : Communication {

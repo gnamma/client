@@ -27,7 +27,7 @@ public class NetworkClient : MonoBehaviour {
         string jsonString = JsonUtility.ToJson(cmd);
         byte[] jsonBytes = Encoding.Default.GetBytes(jsonString);
 
-        Debug.Log(jsonString);
+        Debug.Log("sending :" + jsonString);
 
         SendRaw(jsonBytes);
     }
@@ -47,12 +47,13 @@ public class NetworkClient : MonoBehaviour {
 
     public void Read<T>(ref T blob) where T : Protocol.Communication {
         string rec = ReadRaw();
-        Debug.Log(rec);
 
+        FromString<T>(rec, ref blob);
+    }
+
+    public void FromString<T>(string rec, ref T blob) {
         try {
             blob = JsonUtility.FromJson<T>(rec);
-
-            Debug.Log(blob);
         } catch (Exception e) {
             Debug.Log("Error umarshalling JSON");
             Debug.Log(e);
@@ -63,18 +64,34 @@ public class NetworkClient : MonoBehaviour {
         NetworkStream stream = client.GetStream();
         StreamReader reader = new StreamReader(stream);
 
-        string lenStr = reader.ReadLine();
+        int ch;
+        string lenStr = "";
+        while ((ch = reader.Read()) != -1) {
+            char c = Convert.ToChar(ch);
+
+            if (ch == '\n') {
+                break;
+            }
+
+            lenStr += Convert.ToString(c);
+        }
+
         int len = Int32.Parse(lenStr);
 
-        byte[] data = new byte[len];
-        stream.Read(data, 0, len);
+        char[] data = new char[len];
+        reader.ReadBlock(data, 0, len);
 
-        Debug.Log("read");
+        var str = new string(data);
+        return str;
+    }
 
-        return Encoding.Default.GetString(data);
+    public bool DataAvailable() {
+        return client.GetStream().DataAvailable;
     }
 
     void OnApplicationQuit() {
-        client.Close();
+        if (client != null) {
+            client.Close();
+        }
     }
 }

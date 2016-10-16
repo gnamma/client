@@ -6,47 +6,89 @@ using System.Threading;
 using Protocol;
 
 public class GNSClient : NetworkClient {
-    private Dictionary<string, List<Communication>> received = new Dictionary<string, List<Communication>>();
     private List<Communication> toSend = new List<Communication>();
+    private Dictionary<string, Queue<string>> received = new Dictionary<string, Queue<string>>();
+    private Dictionary<string, AutoResetEvent> receivedEvents = new Dictionary<string, AutoResetEvent>();
 
-    void Awake() {
-        InvokeRepeating("SendComs", 0, 0.2f);
-        InvokeRepeating("ReadComs", 0, 0.1f);
-    }
-
-    void ReadComs() {
-        new Thread(() => {
-            var com = new Communication();
-            Read(ref com);
-
-            if (!received.ContainsKey(com.command)) {
-                received.Add(com.command, new List<Communication>());
-            }
-
-            received[com.command].Add(com);
-        }).Start();
-    }
-
-    public T Read<T>(T blob) where T : Communication {
-        for(;;) {
-            if (received[blob.command].Count > 0) {
-                var b = received[blob.command][0];
-
-                received[blob.command].RemoveAt(0);
-                return b as T;
-            }
-        }
-   } 
-
-    void SendComs() {
-        foreach (var obj in toSend) {
-            base.Send(obj);
+    void Update() {
+        // Sending
+        foreach (var c in toSend) {
+            Debug.Log(c.command);
+            base.Send(c);
         }
 
         toSend.Clear();
+
+        // Reading
+        if (!DataAvailable()) {
+            return;
+        }
+
+        string cmd = "";
+        var comString = Peek(ref cmd);
+
+        checkReceievedDefaults(cmd);
+
+        Debug.Log("queued: " + cmd);
+
+        received[cmd].Enqueue(comString);
+        receivedEvents[cmd].Set();
+
+        Debug.Log("Dispatched!");
     }
 
-    public new void Send(Communication cmd) {
-        toSend.Add(cmd);
+    public string Peek(ref string cmd) {
+        string rec = ReadRaw();
+        var com = new Communication();
+
+        FromString(rec, ref com);
+
+        cmd = com.command;
+
+        return rec;
+    }
+
+    public void Send(Communication com) {
+        toSend.Add(com);
+    }
+
+    public bool ComAvailable(string cmd) {
+        if (!received.ContainsKey(cmd)) {
+            return false;
+        }
+
+        if (received[cmd].Count == 0) {
+            return false;
+        }
+
+        Debug.Log(received[cmd].Count);
+
+        return true;
+    }
+
+    public T Read<T>(T blob) where T :Communication, new() {
+        checkReceievedDefaults(blob.command);
+
+        var comString = received[blob.command].Dequeue();
+
+        var com = new T();
+
+        FromString(comString, ref com);
+
+        Debug.Log("here we go: " + com.command);
+
+        Debug.Log(com is ConnectVerdict);
+
+        return (T) com;
+    }
+
+    private void checkReceievedDefaults(string cmd) {
+        if (!receivedEvents.ContainsKey(cmd)) {
+            receivedEvents.Add(cmd, new AutoResetEvent(false));
+        }
+
+        if (!received.ContainsKey(cmd)) {
+            received.Add(cmd, new Queue<string>());
+        }
     }
 }

@@ -25,9 +25,9 @@ public class Client : MonoBehaviour {
     void Start() {
         gnsNet.Connect();
         asNet.Connect();
-        
-        new Thread(StartSession).Start();
 
+        StartCoroutine(StartSession());
+        
         asNet.SendRawString(environment);
         string resp = asNet.ReadRaw();
         Debug.Log(resp);
@@ -36,47 +36,64 @@ public class Client : MonoBehaviour {
         builder.Build();
     }
 
-    public void StartSession() {
+    public IEnumerator StartSession() {
+        Debug.Log("Starting session");
         ConnectRequest cr = new ConnectRequest(alias);
         gnsNet.Send(cr);
 
         ConnectVerdict cv = new ConnectVerdict();
-        cv = gnsNet.Read(cv);
 
-        if (!cv.can_proceed) {
-            Debug.LogError("Not allowed to proceed: " + cv.message);
-            return;
-        }
-
-        pid = cv.player_id;
-
-        RegisterNodes();
-
-        InvokeRepeating("UpdateNodes", 0, 0.2f);
-    }
-
-    public void RegisterNodes() {
-        foreach (var node in nodes) {
-            var rn = new RegisterNode(node.Node, pid);
-            var ren = new RegisteredNode();
-
-            gnsNet.Send(rn);
-
-            gnsNet.Read(ref ren);
-            if (ren.command == null) {
-                Debug.LogError("Could not register a node: " + node.Node.label);
+        while (true) {
+            if (!gnsNet.ComAvailable(cv.command)) {
+                yield return new WaitForSeconds(0.1f);
             }
 
-            node.ID = ren.nid;
-            node.PID = pid;
+            break;
+        }
+
+        cv = gnsNet.Read(cv);
+        pid = cv.player_id;
+
+        foreach(var tn in nodes) {
+            StartCoroutine(RegisterNode(tn));
         }
     }
 
-    public void UpdateNodes() {
-        foreach (var node in nodes) {
-            var un = new UpdateNode(node.Node);
+    public IEnumerator RegisterNode(TrackedNode tn) {
+        var rn = new RegisterNode(tn.Node, pid);
+        var ren = new RegisteredNode();
 
+        gnsNet.Send(rn);
+        while (true) {
+            if (!gnsNet.ComAvailable(ren.command)) {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            break;
+        }
+
+        ren = gnsNet.Read(ren);
+
+        tn.ID = ren.nid;
+        tn.PID = pid;
+
+        StartCoroutine(UpdateNode(tn));
+    }
+
+    public IEnumerator UpdateNode(TrackedNode tn) {
+        while (true) {
+            if (tn.Ready()) {
+                break; 
+            }
+
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        while (true) {
+            var un = new UpdateNode(tn.Node);
             gnsNet.Send(un);
+
+            yield return new WaitForSeconds(0.1f);
         }
-    }
+    } 
 }
