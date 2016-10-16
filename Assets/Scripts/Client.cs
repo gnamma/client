@@ -42,14 +42,7 @@ public class Client : MonoBehaviour {
         gnsNet.Send(cr);
 
         ConnectVerdict cv = new ConnectVerdict();
-
-        while (true) {
-            if (!gnsNet.ComAvailable(cv.command)) {
-                yield return new WaitForSeconds(0.1f);
-            }
-
-            break;
-        }
+        yield return new WaitForCom(ref gnsNet, cv.command);
 
         cv = gnsNet.Read(cv);
         pid = cv.player_id;
@@ -64,14 +57,7 @@ public class Client : MonoBehaviour {
         var ren = new RegisteredNode();
 
         gnsNet.Send(rn);
-        while (true) {
-            if (!gnsNet.ComAvailable(ren.command)) {
-                yield return new WaitForSeconds(0.1f);
-            }
-
-            break;
-        }
-
+        yield return new WaitForCom(ref gnsNet, ren.command);
         ren = gnsNet.Read(ren);
 
         tn.ID = ren.nid;
@@ -95,5 +81,5 @@ public class Client : MonoBehaviour {
 
             yield return new WaitForSeconds(0.1f);
         }
-    } 
+    }
 }

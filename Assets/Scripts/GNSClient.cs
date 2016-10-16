@@ -68,7 +68,7 @@ public class GNSClient : NetworkClient {
 
     public T Read<T>(T blob) where T :Communication, new() {
         checkReceievedDefaults(blob.command);
-
+        Debug.Log(received[blob.command].Count);
         var comString = received[blob.command].Dequeue();
 
         var com = new T();
