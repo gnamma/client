@@ -13,7 +13,6 @@ public class GNSClient : NetworkClient {
     void Update() {
         // Sending
         foreach (var c in toSend) {
-            Debug.Log(c.command);
             base.Send(c);
         }
 
@@ -68,7 +67,7 @@ public class GNSClient : NetworkClient {
 
     public T Read<T>(T blob) where T :Communication, new() {
         checkReceievedDefaults(blob.command);
-        Debug.Log(received[blob.command].Count);
+
         var comString = received[blob.command].Dequeue();
 
         var com = new T();
@@ -76,8 +75,6 @@ public class GNSClient : NetworkClient {
         FromString(comString, ref com);
 
         Debug.Log("here we go: " + com.command);
-
-        Debug.Log(com is ConnectVerdict);
 
         return (T) com;
     }

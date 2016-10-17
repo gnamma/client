@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Protocol;
 using System.Threading;
 
 public class Client : MonoBehaviour {
     public string alias = "parzival";
     public string environment = "pillars.gsml";
+
+    public NetPlayer otherPlayer;
+    public TrackedNode nodeAsset;
 
     public TrackedNode[] nodes;
 
@@ -14,6 +18,8 @@ public class Client : MonoBehaviour {
     private Builder builder;
 
     private uint pid;
+
+    private Dictionary<uint, NetPlayer> otherPlayers = new Dictionary<uint, NetPlayer>();
 
 	void Awake() {
         gnsNet = GetComponent<GNSClient>();
@@ -45,11 +51,16 @@ public class Client : MonoBehaviour {
         yield return new WaitForCom(ref gnsNet, cv.command);
 
         cv = gnsNet.Read(cv);
+
+        GeneratePlayers(cv.players);
+
         pid = cv.player_id;
 
         foreach(var tn in nodes) {
             StartCoroutine(RegisterNode(tn));
         }
+
+        StartCoroutine(Updates());
     }
 
     public IEnumerator RegisterNode(TrackedNode tn) {
@@ -80,6 +91,51 @@ public class Client : MonoBehaviour {
             gnsNet.Send(un);
 
             yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    public void GeneratePlayers(Player[] players) {
+        Debug.Log("Generating players...");
+        foreach (var player in players) {
+            var op = (NetPlayer)Instantiate(otherPlayer);
+
+            op.username = player.username;
+            op.id = player.id;
+
+            foreach (var node in player.nodes) {
+                nodeAsset.label = node.label;
+                nodeAsset.type = node.type;
+
+                var n = (TrackedNode)Instantiate(nodeAsset, node.position.Vector3(), new Quaternion(), op.transform);
+                Debug.Log(player.id);
+                n.PID = node.pid;
+                n.ID = node.id;
+            }
+
+            op.InitNodes();
+
+            otherPlayers.Add(op.id, op);
+            Debug.Log("other player id: " + op.id);
+        }
+    }
+
+    public IEnumerator Updates() {
+        while (true) {
+            Debug.Log("Updating node...");
+            var un = new UpdateNode();
+            yield return new WaitForCom(ref gnsNet, un.command);
+            un = gnsNet.Read(un);
+
+            Debug.Log("Looking for player " + un.pid);
+
+            if (un.pid == pid || !otherPlayers.ContainsKey(un.pid)) {
+                continue; // We don't care about our own movement or players not yet registered;
+            }
+
+            Debug.Log("Continuing to update node...");
+
+            var op = otherPlayers[un.pid];
+            op.UpdateNode(un);
         }
     }
 }

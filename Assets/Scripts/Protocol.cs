@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using GUtils;
+using System;
 
 namespace Protocol {
     public class Communication {
@@ -22,6 +23,7 @@ namespace Protocol {
         public bool can_proceed;
         public string message;
         public uint player_id;
+        public Player[] players;
 
         public ConnectVerdict() {
             command = "connect_verdict";
@@ -62,8 +64,13 @@ namespace Protocol {
 
             command = "update_node";
         }
+
+        public UpdateNode() {
+            command = "update_node";
+        }
     }
 
+    [Serializable]
     public class Node {
         public uint id;
         public int type;
@@ -72,5 +79,13 @@ namespace Protocol {
         public Point rotation;
         public string asset;
         public string label;
+    }
+
+    [Serializable]
+    public class Player {
+        public uint id;
+        public string username;
+
+        public Node[] nodes;
     }
 }

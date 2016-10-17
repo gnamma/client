@@ -161,6 +161,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   alias: parzival
   environment: pillars.gsml
+  otherPlayer: {fileID: 114000010075316608, guid: 23a6dedd6b63b5b43885fac917d11f95,
+    type: 2}
+  nodeAsset: {fileID: 114000010924786090, guid: a867e325c7875384fb423fa632647e52,
+    type: 2}
   nodes:
   - {fileID: 1460045751}
   - {fileID: 1438207020}
@@ -237,11 +241,11 @@ Prefab:
     - target: {fileID: 3380982, guid: 4d293c8e162f3874b982baadd71153d2, type: 2}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1298416648}
+      objectReference: {fileID: 1019814742}
     - target: {fileID: 2348914, guid: 4d293c8e162f3874b982baadd71153d2, type: 2}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 585579048}
+      objectReference: {fileID: 841390150}
     - target: {fileID: 146900, guid: 4d293c8e162f3874b982baadd71153d2, type: 2}
       propertyPath: m_IsActive
       value: 1
@@ -249,7 +253,7 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4d293c8e162f3874b982baadd71153d2, type: 2}
   m_IsPrefabParent: 0
---- !u!21 &585579048
+--- !u!21 &841390150
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
@@ -278,7 +282,7 @@ Material:
     - first:
         name: _Color
       second: {r: 1, g: 1, b: 1, a: 1}
---- !u!43 &1298416648
+--- !u!43 &1019814742
 Mesh:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}

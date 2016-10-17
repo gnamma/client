@@ -27,8 +27,6 @@ public class NetworkClient : MonoBehaviour {
         string jsonString = JsonUtility.ToJson(cmd);
         byte[] jsonBytes = Encoding.Default.GetBytes(jsonString);
 
-        Debug.Log("sending :" + jsonString);
-
         SendRaw(jsonBytes);
     }
 
@@ -52,6 +50,7 @@ public class NetworkClient : MonoBehaviour {
     }
 
     public void FromString<T>(string rec, ref T blob) {
+        Debug.Log(rec);
         try {
             blob = JsonUtility.FromJson<T>(rec);
         } catch (Exception e) {
@@ -73,8 +72,15 @@ public class NetworkClient : MonoBehaviour {
                 break;
             }
 
+            if (c < '0' || c > '9') {
+                lenStr = "";
+                continue;
+            }
+
             lenStr += Convert.ToString(c);
         }
+
+        Debug.Log(lenStr);
 
         int len = Int32.Parse(lenStr);
 
