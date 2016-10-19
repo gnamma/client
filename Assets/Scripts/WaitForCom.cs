@@ -12,7 +12,7 @@ public class WaitForCom : CustomYieldInstruction {
         net = n;
         cmd = c;
 
-        waitTime = Time.realtimeSinceStartup + 0.1f;
+        waitTime = Time.realtimeSinceStartup + 0;
     }
 
     public override bool keepWaiting {

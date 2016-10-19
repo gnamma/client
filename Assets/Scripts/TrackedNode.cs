@@ -27,7 +27,6 @@ public class TrackedNode : MonoBehaviour {
 
     public uint PID {
         set {
-            Debug.Log(node);
             node.pid = value;
         }
     }
@@ -56,14 +55,11 @@ public class TrackedNode : MonoBehaviour {
             return true;
         }
 
-        Debug.Log("Need to hit the weights mroe bro: " + node.pid + ", " + node.id);
-
         return false;
     }
 
     public void UpdateNode(UpdateNode un) {
         transform.position = un.position.Vector3();
-        Debug.Log("Updating node: " + un.position.z);
         // transform.rotation = un.rotation.Vector3();
     }
 }

@@ -28,12 +28,8 @@ public class GNSClient : NetworkClient {
 
         checkReceievedDefaults(cmd);
 
-        Debug.Log("queued: " + cmd);
-
         received[cmd].Enqueue(comString);
         receivedEvents[cmd].Set();
-
-        Debug.Log("Dispatched!");
     }
 
     public string Peek(ref string cmd) {
@@ -60,8 +56,6 @@ public class GNSClient : NetworkClient {
             return false;
         }
 
-        Debug.Log(received[cmd].Count);
-
         return true;
     }
 
@@ -73,8 +67,6 @@ public class GNSClient : NetworkClient {
         var com = new T();
 
         FromString(comString, ref com);
-
-        Debug.Log("here we go: " + com.command);
 
         return (T) com;
     }

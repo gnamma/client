@@ -50,6 +50,16 @@ namespace Protocol {
         }
     }
 
+    public class RegisteredAllNodes : Communication {
+        public uint pid;
+        
+        public RegisteredAllNodes(uint p) {
+            pid = p;
+
+            command = "registered_all_nodes";
+        }
+    }
+
     public class UpdateNode : Communication {
         public uint pid;
         public uint nid;
@@ -67,6 +77,14 @@ namespace Protocol {
 
         public UpdateNode() {
             command = "update_node";
+        }
+    }
+
+    public class JoinRoom : Communication {
+        public Player player;
+
+        public JoinRoom() {
+            command = "join_room";
         }
     }
 

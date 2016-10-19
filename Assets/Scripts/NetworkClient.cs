@@ -50,7 +50,6 @@ public class NetworkClient : MonoBehaviour {
     }
 
     public void FromString<T>(string rec, ref T blob) {
-        Debug.Log(rec);
         try {
             blob = JsonUtility.FromJson<T>(rec);
         } catch (Exception e) {
@@ -80,7 +79,6 @@ public class NetworkClient : MonoBehaviour {
             lenStr += Convert.ToString(c);
         }
 
-        Debug.Log(lenStr);
 
         int len = Int32.Parse(lenStr);
 

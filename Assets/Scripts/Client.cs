@@ -21,19 +21,21 @@ public class Client : MonoBehaviour {
 
     private Dictionary<uint, NetPlayer> otherPlayers = new Dictionary<uint, NetPlayer>();
 
-	void Awake() {
+    private int registeredNodes = 0;
+
+    void Awake() {
         gnsNet = GetComponent<GNSClient>();
         asNet = GetComponent<AssetsClient>();
 
         builder = GetComponent<Builder>();
-	}
+    }
 
     void Start() {
         gnsNet.Connect();
         asNet.Connect();
 
         StartCoroutine(StartSession());
-        
+
         asNet.SendRawString(environment);
         string resp = asNet.ReadRaw();
         Debug.Log(resp);
@@ -56,11 +58,23 @@ public class Client : MonoBehaviour {
 
         pid = cv.player_id;
 
-        foreach(var tn in nodes) {
+        foreach (var tn in nodes) {
             StartCoroutine(RegisterNode(tn));
         }
 
-        StartCoroutine(Updates());
+        StartCoroutine(PollJoins());
+        StartCoroutine(PollUpdates());
+
+        yield return new WaitUntil(() => {
+            if (registeredNodes == nodes.Length) {
+                return true;
+            }
+
+            return false;
+        });
+
+        Debug.Log("Registered all nodes... Ready to start experience!");
+        gnsNet.Send(new RegisteredAllNodes(pid));
     }
 
     public IEnumerator RegisterNode(TrackedNode tn) {
@@ -74,13 +88,15 @@ public class Client : MonoBehaviour {
         tn.ID = ren.nid;
         tn.PID = pid;
 
+        registeredNodes++;
+
         StartCoroutine(UpdateNode(tn));
     }
 
     public IEnumerator UpdateNode(TrackedNode tn) {
         while (true) {
             if (tn.Ready()) {
-                break; 
+                break;
             }
 
             yield return new WaitForSeconds(0.1f);
@@ -94,45 +110,58 @@ public class Client : MonoBehaviour {
         }
     }
 
-    public void GeneratePlayers(Player[] players) {
-        Debug.Log("Generating players...");
-        foreach (var player in players) {
-            var op = (NetPlayer)Instantiate(otherPlayer);
+    public IEnumerator PollJoins() {
+        Debug.Log("Starting join poll...");
+        while (true) {
+            var jr = new JoinRoom();
 
-            op.username = player.username;
-            op.id = player.id;
+            yield return new WaitForCom(ref gnsNet, jr.command);
+            Debug.Log("Got join com");
+            jr = gnsNet.Read(jr);
 
-            foreach (var node in player.nodes) {
-                nodeAsset.label = node.label;
-                nodeAsset.type = node.type;
-
-                var n = (TrackedNode)Instantiate(nodeAsset, node.position.Vector3(), new Quaternion(), op.transform);
-                Debug.Log(player.id);
-                n.PID = node.pid;
-                n.ID = node.id;
-            }
-
-            op.InitNodes();
-
-            otherPlayers.Add(op.id, op);
-            Debug.Log("other player id: " + op.id);
+            GeneratePlayer(jr.player);
         }
     }
 
-    public IEnumerator Updates() {
+    public void GeneratePlayers(Player[] players) {
+        Debug.Log("Generating players...");
+        foreach (var player in players) {
+            GeneratePlayer(player);
+        }
+    }
+
+    public void GeneratePlayer(Player player) {
+        var op = (NetPlayer)Instantiate(otherPlayer);
+
+        Debug.Log(player);
+
+        op.username = player.username;
+        op.id = player.id;
+
+        foreach (var node in player.nodes) {
+            nodeAsset.label = node.label;
+            nodeAsset.type = node.type;
+
+            var n = (TrackedNode)Instantiate(nodeAsset, node.position.Vector3(), new Quaternion(), op.transform);
+            Debug.Log(player.id);
+            n.PID = node.pid;
+            n.ID = node.id;
+        }
+
+        op.InitNodes();
+
+        otherPlayers.Add(op.id, op);
+    }
+
+    public IEnumerator PollUpdates() {
         while (true) {
-            Debug.Log("Updating node...");
             var un = new UpdateNode();
             yield return new WaitForCom(ref gnsNet, un.command);
             un = gnsNet.Read(un);
 
-            Debug.Log("Looking for player " + un.pid);
-
             if (un.pid == pid || !otherPlayers.ContainsKey(un.pid)) {
                 continue; // We don't care about our own movement or players not yet registered;
             }
-
-            Debug.Log("Continuing to update node...");
 
             var op = otherPlayers[un.pid];
             op.UpdateNode(un);
