@@ -88,6 +88,14 @@ namespace Protocol {
         }
     }
 
+    public class LeaveRoom : Communication {
+        public uint pid;
+
+        public LeaveRoom() {
+            command = "leave_room";
+        }
+    }
+
     [Serializable]
     public class Node {
         public uint id;

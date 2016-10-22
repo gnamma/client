@@ -64,6 +64,7 @@ public class Client : MonoBehaviour {
 
         StartCoroutine(PollJoins());
         StartCoroutine(PollUpdates());
+        StartCoroutine(PollLeaves());
 
         yield return new WaitUntil(() => {
             if (registeredNodes == nodes.Length) {
@@ -165,6 +166,16 @@ public class Client : MonoBehaviour {
 
             var op = otherPlayers[un.pid];
             op.UpdateNode(un);
+        }
+    }
+
+    public IEnumerator PollLeaves() {
+        while (true) {
+            var lr = new LeaveRoom();
+            yield return new WaitForCom(ref gnsNet, lr.command);
+            lr = gnsNet.Read(lr);
+
+            Destroy(otherPlayers[lr.pid].gameObject);
         }
     }
 }
