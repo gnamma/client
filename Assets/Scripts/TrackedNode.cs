@@ -10,6 +10,9 @@ public class TrackedNode : MonoBehaviour {
     private Node node;
     private bool ready;
 
+    private UpdateNode update1;
+    private UpdateNode update2;
+
     public TrackedNode() {
         node = new Node();
     }
@@ -59,7 +62,18 @@ public class TrackedNode : MonoBehaviour {
     }
 
     public void UpdateNode(UpdateNode un) {
-        transform.position = un.position.Vector3();
-        // transform.rotation = un.rotation.Vector3();
+        update2 = update1;
+        update1 = un;
+    }
+
+    void Update() {
+        if (update1 == null || update2 == null) {
+            return;
+        }
+
+        var dt = (update1.sent_at - update2.sent_at) * 1e-9;
+        var md = Vector3.Distance(update1.position.Vector3(), update2.position.Vector3());
+
+        transform.position = Vector3.MoveTowards(transform.position, update2.position.Vector3(), (float) (md * dt));
     }
 }

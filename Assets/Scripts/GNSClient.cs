@@ -7,7 +7,7 @@ using Protocol;
 
 public class GNSClient : NetworkClient {
     private List<Communication> toSend = new List<Communication>();
-    private Dictionary<string, Queue<string>> received = new Dictionary<string, Queue<string>>();
+    private Dictionary<string, Stack<string>> received = new Dictionary<string, Stack<string>>();
     private Dictionary<string, AutoResetEvent> receivedEvents = new Dictionary<string, AutoResetEvent>();
 
     void Update() {
@@ -28,7 +28,7 @@ public class GNSClient : NetworkClient {
 
         checkReceievedDefaults(cmd);
 
-        received[cmd].Enqueue(comString);
+        received[cmd].Push(comString);
         receivedEvents[cmd].Set();
     }
 
@@ -62,7 +62,7 @@ public class GNSClient : NetworkClient {
     public T Read<T>(T blob) where T :Communication, new() {
         checkReceievedDefaults(blob.command);
 
-        var comString = received[blob.command].Dequeue();
+        var comString = received[blob.command].Pop();
 
         var com = new T();
 
@@ -77,7 +77,7 @@ public class GNSClient : NetworkClient {
         }
 
         if (!received.ContainsKey(cmd)) {
-            received.Add(cmd, new Queue<string>());
+            received.Add(cmd, new Stack<string>());
         }
     }
 }
